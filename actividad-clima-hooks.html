@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actividad: la app del clima con hooks propios</title>
+  <!-- Tailwind por CDN: hace falta internet al abrir el archivo -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<header class="bg-red-800 text-white p-6">
+  <p class="text-sm text-red-200">Programación Web · UFPS</p>
+  <h1 class="text-2xl font-bold">Actividad: la app del clima con hooks propios</h1>
+  <p class="mt-2">Vas a construir un buscador de ciudades que muestra el clima actual y el de los próximos siete días, usando la API de Open-Meteo. Todo en un repositorio de GitHub y en Codespaces, sin instalar nada en el computador.</p>
+</header>
+
+<main class="max-w-3xl mx-auto p-6 space-y-6">
+
+  <section class="bg-amber-50 border border-amber-300 rounded p-4 text-sm">
+    <p><b>Entrega en grupo.</b> Un commit por paso, con un mensaje que diga qué se hizo. En el historial del repositorio deben aparecer commits de <b>todos</b> los integrantes: repártanse los pasos para que cada uno haga al menos uno.</p>
+  </section>
+
+  <!-- ===================== LO QUE VAS A CONSTRUIR ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-4">
+    <h2 class="font-bold text-base">Lo que vas a construir</h2>
+    <p class="text-sm">Así se debe ver cuando termines el paso 5. El estilo es libre.</p>
+
+    <div class="border-2 border-slate-300 rounded-lg overflow-hidden">
+      <div class="bg-slate-200 px-3 py-1 text-xs text-slate-500">Vista previa de la app</div>
+      <div class="p-5 bg-white space-y-4 text-sm">
+        <h3 class="text-xl font-bold">Clima</h3>
+        <div class="flex gap-2">
+          <input class="flex-1 border border-slate-300 rounded p-2 ring-2 ring-red-300" value="Cucuta" readonly>
+          <button class="px-3 py-1 rounded border border-slate-300">Limpiar</button>
+        </div>
+        <ul class="space-y-1">
+          <li class="px-2 py-1 rounded bg-slate-100 font-bold">Cúcuta, Norte de Santander, Colombia</li>
+          <li class="px-2 py-1 rounded hover:bg-slate-50">Cucuta, Alba, Rumanía</li>
+          <li class="px-2 py-1 rounded hover:bg-slate-50">Cucuta, Estado Anzoátegui, Venezuela</li>
+        </ul>
+        <div class="border border-slate-200 rounded p-4 space-y-2">
+          <p class="text-lg font-bold">Cúcuta</p>
+          <p><span class="text-3xl font-bold">26.3 °C</span> · ⛅ Parcialmente nublado · viento 4.9 km/h</p>
+          <p class="bg-amber-50 rounded p-2">Esta semana: máxima 35.9 °C, mínima 23.3 °C. El día más caluroso es el 2026-10-03.</p>
+          <div class="grid grid-cols-7 gap-1 text-center text-xs">
+            <div class="border border-slate-200 rounded p-1">Vie<br>⛅<br>26–34</div>
+            <div class="border border-slate-200 rounded p-1">Sáb<br>🌦️<br>26–36</div>
+            <div class="border border-slate-200 rounded p-1">Dom<br>🌧️<br>24–35</div>
+            <div class="border border-slate-200 rounded p-1">Lun<br>🌧️<br>24–35</div>
+            <div class="border border-slate-200 rounded p-1">Mar<br>🌦️<br>24–33</div>
+            <div class="border border-slate-200 rounded p-1">Mié<br>🌧️<br>23–33</div>
+            <div class="border border-slate-200 rounded p-1">Jue<br>⛈️<br>24–29</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-sm">Los datos de la maqueta son de ejemplo. Los tuyos van a ser los del día en que hagas la actividad.</p>
+  </section>
+
+  <!-- ===================== PASO 0 ===================== -->
+  <section class="bg-white border-l-4 border-emerald-500 border border-slate-200 rounded p-4 space-y-2">
+    <h2 class="font-bold">Paso 0 · El repositorio y el codespace</h2>
+    <p class="text-sm">Una persona del grupo hace esto; los demás lo siguen en su pantalla.</p>
+    <ol class="list-decimal ml-5 text-sm space-y-1">
+      <li>En <a class="text-red-700 underline" href="https://github.com/new" target="_blank">github.com/new</a> crea un repositorio público llamado <code>clima-react</code>. Marca la casilla para agregar un README.</li>
+      <li>En la página del repositorio: botón verde <b>Code → pestaña Codespaces → Create codespace on main</b>. La primera vez tarda uno o dos minutos. Se abre VS Code en el navegador.</li>
+      <li>En la terminal de abajo, crea el proyecto en la carpeta actual:
+        <pre class="bg-slate-900 text-slate-100 rounded p-3 mt-1 overflow-x-auto">npm create vite@latest . -- --template react --overwrite --no-interactive
+npm install
+npm run dev</pre>
+        <p class="mt-1"><code>--overwrite</code> reemplaza el README, pero no toca la carpeta <code>.git</code>: el repositorio sigue conectado.</p>
+      </li>
+      <li>Aparece un aviso de que la aplicación corre en el puerto 5173. Pulsa <b>Open in Browser</b>. Si el aviso se cerró, abre la pestaña <b>Ports</b> junto a la terminal y haz clic en el ícono del globo del puerto 5173.</li>
+      <li>Borra el contenido de ejemplo de <code>src/App.jsx</code> (deja una función <code>App</code> con un título «Clima») y vacía <code>src/App.css</code>.</li>
+      <li>Abre una segunda terminal (el botón <b>+</b>) para no detener el servidor, y guarda el primer commit:
+        <pre class="bg-slate-900 text-slate-100 rounded p-3 mt-1 overflow-x-auto">git add .
+git commit -m "Proyecto creado con Vite"
+git push</pre>
+      </li>
+      <li>Ahora que el repositorio tiene código, agrega a tus compañeros: <b>Settings → Collaborators → Add people</b>, con su usuario de GitHub. No lo hagas antes del primer push: con el repositorio vacío, la invitación puede no llegar.</li>
+      <li>Cada compañero acepta la invitación entrando a <code>https://github.com/USUARIO/clima-react/invitations</code> (cambia <code>USUARIO</code> por el de quien creó el repositorio). No esperen el correo: a veces llega tarde o cae en spam.</li>
+    </ol>
+    <p class="text-sm"><b>Quedó bien si:</b> en la pestaña del navegador ves el título «Clima», y en GitHub el repositorio ya tiene <code>package.json</code> y la carpeta <code>src</code>.</p>
+    <p class="text-sm"><b>Para trabajar los tres:</b> cada compañero abre su propio codespace sobre el mismo repositorio (<b>Code → Codespaces → Create codespace on main</b>), corre <code>npm install</code> y <code>npm run dev</code>, y trabaja el paso que le tocó. Antes de empezar, siempre <code>git pull</code> para traer lo último; al terminar, <code>git add</code>, <code>git commit</code> y <code>git push</code>. Si el push dice que hay cambios nuevos en el remoto, haz <code>git pull</code> y vuelve a intentar.</p>
+    <p class="text-sm text-slate-500">En Codespaces, Git ya viene configurado con la cuenta de GitHub de quien abrió el codespace, así que cada commit queda a nombre de quien lo hizo. Por eso cada uno trabaja en su propio codespace y no en el de un compañero.</p>
+  </section>
+
+  <!-- ===================== PASO 1 ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 1 · Buscar ciudades <span class="font-normal text-slate-500">(unos 20 minutos)</span></h3>
+    <p class="text-sm">Un campo de texto controlado. Cuando tenga al menos tres letras, la app busca ciudades con ese nombre y las muestra en una lista: nombre, departamento y país. Muestra también «Buscando…» mientras llega la respuesta, el error si falla y «Sin resultados» si no hay coincidencias.</p>
+    <p class="text-sm">La URL para buscar es esta (cambia <code>Cucuta</code> por lo que se escribió, pasado por <code>encodeURIComponent</code>):</p>
+    <pre class="bg-slate-900 text-slate-100 text-sm rounded p-3 overflow-x-auto">https://geocoding-api.open-meteo.com/v1/search?name=Cucuta&amp;count=5&amp;language=es</pre>
+    <p class="text-sm">Pégala en una pestaña nueva del navegador para ver qué devuelve. Cada ciudad trae <code>id</code>, <code>name</code>, <code>admin1</code> (el departamento), <code>country</code>, <code>latitude</code> y <code>longitude</code>.</p>
+    <p class="text-sm text-slate-500">Pista: por ahora hazlo como en la clase anterior, con <code>useEffect</code>, <code>AbortController</code> y los tres estados, todo dentro de <code>App</code>. Ojo: cuando no hay coincidencias, la respuesta llega con código 200 pero <b>sin</b> la propiedad <code>results</code>. Prueba con «zzzqqq».</p>
+    <p class="text-sm"><b>Quedó bien si:</b> escribes «Pamplona» y aparecen varias, entre ellas la de Norte de Santander; con «zzzqqq» aparece «Sin resultados»; con una o dos letras no se hace ninguna petición (revísalo en la pestaña Network).</p>
+  </section>
+
+  <!-- ===================== PASO 2 ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 2 · Tu primer hook: useFetch <span class="font-normal text-slate-500">(unos 20 minutos)</span></h3>
+    <p class="text-sm">Saca toda la lógica de la petición a un archivo <code>src/hooks/useFetch.js</code>. El hook recibe una URL y devuelve un objeto con tres propiedades: <code>datos</code>, <code>cargando</code> y <code>error</code>. Si la URL es <code>null</code>, no pide nada.</p>
+    <pre class="bg-slate-900 text-slate-100 text-sm rounded p-3 overflow-x-auto">// así se debe poder usar en App.jsx
+const url = texto.length &gt;= 3 ? `https://...search?name=${encodeURIComponent(texto)}&amp;count=5&amp;language=es` : null;
+const ciudades = useFetch(url);
+
+// ciudades.datos, ciudades.cargando, ciudades.error</pre>
+    <p class="text-sm text-slate-500">Pista: copia el <code>useState</code> y el <code>useEffect</code> de <code>App</code> dentro de una función <code>export function useFetch(url)</code>, cambia la dependencia por <code>[url]</code> y al principio del efecto pon <code>if (!url) return;</code>. Fíjate en la regla de los hooks: el <code>if</code> va <b>dentro</b> del hook, no alrededor de <code>useFetch</code>.</p>
+    <p class="text-sm"><b>Quedó bien si:</b> la app funciona exactamente igual que en el paso 1, y <code>App.jsx</code> ya no tiene ningún <code>fetch</code> ni <code>useEffect</code> para buscar ciudades.</p>
+  </section>
+
+  <!-- ===================== PASO 3 ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 3 · El pronóstico, con el mismo hook <span class="font-normal text-slate-500">(unos 20 minutos)</span></h3>
+    <p class="text-sm">Al hacer clic en una ciudad de la lista, se guarda en el estado y aparece debajo su clima actual (temperatura, descripción y viento) y los siete días siguientes con mínima, máxima y descripción.</p>
+    <pre class="bg-slate-900 text-slate-100 text-sm rounded p-3 overflow-x-auto">https://api.open-meteo.com/v1/forecast?latitude=7.9&amp;longitude=-72.5&amp;current=temperature_2m,weather_code,wind_speed_10m&amp;daily=temperature_2m_max,temperature_2m_min,weather_code&amp;timezone=auto</pre>
+    <p class="text-sm">La respuesta trae <code>current</code> con el clima de ahora y <code>daily</code> con arrays paralelos: <code>daily.time[0]</code>, <code>daily.temperature_2m_max[0]</code> y <code>daily.temperature_2m_min[0]</code> son del mismo día. El clima viene como un número (<code>weather_code</code>). Copia esta función en <code>src/clima.js</code> para convertirlo en texto:</p>
+    <pre class="bg-slate-900 text-slate-100 text-sm rounded p-3 overflow-x-auto">export function describirClima(codigo) {
+  if (codigo === 0) return "☀️ Despejado";
+  if (codigo &lt;= 3) return "⛅ Parcialmente nublado";
+  if (codigo &lt;= 48) return "🌫️ Niebla";
+  if (codigo &lt;= 57) return "🌦️ Llovizna";
+  if (codigo &lt;= 67) return "🌧️ Lluvia";
+  if (codigo &lt;= 77) return "❄️ Nieve";
+  if (codigo &lt;= 82) return "🌧️ Chubascos";
+  return "⛈️ Tormenta";
+}</pre>
+    <p class="text-sm text-slate-500">Pista: no escribas otro <code>fetch</code>. Llama <code>useFetch</code> una segunda vez con la URL del pronóstico, armada con la latitud y la longitud de la ciudad elegida, o <code>null</code> si todavía no se ha elegido ninguna.</p>
+    <p class="text-sm"><b>Quedó bien si:</b> eliges Cúcuta y ves su clima; eliges otra ciudad y el pronóstico cambia; y en tu código hay dos llamadas a <code>useFetch</code> y un solo <code>fetch</code> en todo el proyecto.</p>
+  </section>
+
+  <!-- ===================== PASO 4 ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 4 · Resumen de la semana con useMemo <span class="font-normal text-slate-500">(unos 15 minutos)</span></h3>
+    <p class="text-sm">Encima de los siete días, una línea que diga la máxima y la mínima de la semana y cuál es el día más caluroso.</p>
+    <p class="text-sm text-slate-500">Pista: calcula el resumen dentro de <code>useMemo</code>, con los datos del pronóstico como dependencia. <code>Math.max(...array)</code> da el mayor de un array, e <code>indexOf</code> te dice en qué posición está, que es la misma posición en <code>daily.time</code>. Pon un <code>console.log("calculando resumen")</code> dentro del <code>useMemo</code>.</p>
+    <p class="text-sm"><b>Quedó bien si:</b> el resumen es correcto y, con una ciudad ya elegida, escribir en el buscador <b>no</b> imprime «calculando resumen» en la consola. Solo se imprime cuando cambia la ciudad.</p>
+  </section>
+
+  <!-- ===================== PASO 5 ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 5 · El foco con useRef <span class="font-normal text-slate-500">(unos 10 minutos)</span></h3>
+    <p class="text-sm">Al abrir la app, el cursor ya está en el campo de búsqueda, sin hacer clic. Junto al campo, un botón «Limpiar» que borra el texto, quita la ciudad elegida y vuelve a poner el cursor en el campo.</p>
+    <p class="text-sm text-slate-500">Pista: <code>const entrada = useRef(null)</code>, <code>&lt;input ref={entrada} ... /&gt;</code> y <code>entrada.current.focus()</code>. Para el foco inicial, un efecto con <code>[]</code>.</p>
+    <p class="text-sm"><b>Quedó bien si:</b> recargas la página y puedes escribir de una; pulsas Limpiar y también.</p>
+  </section>
+
+  <!-- ===================== PASO 6 ===================== -->
+  <section class="bg-white border border-dashed border-slate-300 rounded p-4 space-y-2">
+    <h3 class="font-bold">Paso 6 · Opcional: no buscar con cada tecla</h3>
+    <p class="text-sm">Al escribir «Bucaramanga» rápido, hoy salen nueve peticiones, una por cada letra desde la tercera. Haz que la búsqueda espere a que pasen 400 milisegundos sin escribir antes de pedir.</p>
+    <p class="text-sm text-slate-500">Pista: otro hook propio, <code>useDebounce(valor, ms)</code>, que devuelve el valor solo cuando lleva <code>ms</code> milisegundos sin cambiar. Por dentro es un <code>useEffect</code> con un <code>setTimeout</code> y su limpieza con <code>clearTimeout</code>. Busca con el valor que devuelve, no con el texto del campo.</p>
+    <p class="text-sm"><b>Quedó bien si:</b> en la pestaña Network, escribir «Bucaramanga» de corrido genera una sola petición.</p>
+  </section>
+
+  <!-- ===================== ENTREGA ===================== -->
+  <section class="bg-white border border-slate-200 rounded p-4 text-sm space-y-2">
+    <h2 class="font-bold text-base">Entrega</h2>
+    <p>Sube a nplad el enlace del repositorio, por ejemplo <code>https://github.com/usuario/clima-react</code>. Antes de enviarlo, ábrelo en una ventana de incógnito para comprobar que es público y que tiene el último commit.</p>
+    <p><b>Al terminar, detén el codespace:</b> entra a <a class="text-red-700 underline" href="https://github.com/codespaces" target="_blank">github.com/codespaces</a>, abre el menú de tres puntos de tu codespace y elige <b>Stop codespace</b>. Las cuentas gratuitas tienen un límite de horas al mes, y un codespace abierto sigue gastando hasta que se apague solo por inactividad.</p>
+  </section>
+
+</main>
+
+<footer class="max-w-3xl mx-auto p-6 text-xs text-slate-400">
+  Programación Web · Universidad Francisco de Paula Santander · Profesor Daniel A. Esteban
+</footer>
+
+</body>
+</html>
