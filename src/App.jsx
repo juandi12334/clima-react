@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFetch } from './hooks/useFetch'
+import { useDebounce } from './hooks/useDebounce'
 import { describirClima } from './clima'
 
 
@@ -8,8 +9,10 @@ import './App.css'
 function App() {
   const [texto, setTexto] = useState('');
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState(null)
+  const entrada = useRef(null)
+  const textoBusqueda = useDebounce(texto, 400)
 
-  const url = texto.length >= 3 ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(texto)}&count=5&language=es` : null
+  const url = textoBusqueda.length >= 3 ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(textoBusqueda)}&count=5&language=es` : null
 
   const ciudades = useFetch(url)
   const resultados = ciudades.datos?.results ?? []
@@ -38,15 +41,31 @@ function App() {
     return { maxima, minima, diaCaluroso }
   }, [pronostico.datos])
 
+  useEffect(() => {
+    entrada.current.focus()
+  }, [])
+
   function seleccionarCiudad(ciudad) {
     setCiudadSeleccionada(ciudad)
     setTexto('')
   }
 
+  function limpiar() {
+    setTexto('')
+    setCiudadSeleccionada(null)
+    entrada.current.focus()
+  }
+
   return (
     <>
       <h1>Clima</h1>
-      <input placeholder="Escribe una ciudad..." value={texto} onChange={(evento) => setTexto(evento.target.value)}/>
+      <input
+        ref={entrada}
+        placeholder="Escribe una ciudad..."
+        value={texto}
+        onChange={(evento) => setTexto(evento.target.value)}
+      />
+      <button type="button" onClick={limpiar}>Limpiar</button>
       
       {url && ciudades.cargando && <p>Buscando...</p>}
       {url && ciudades.error && <p>{ciudades.error}</p>}
